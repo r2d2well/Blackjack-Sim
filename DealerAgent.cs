@@ -9,12 +9,16 @@ namespace BlackJack_Simulator
 {
     internal static class DealerAgent
     {
-        public static void DealerMove(Stack<Card> deck, List<Card> dealer)
+        public static bool DealerMove(List<Card> dealer)
         {
             byte total = GetDealerTotal(dealer);
             if (total < 17)
             {
-                dealer.Add(deck.Pop());
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
 
@@ -31,13 +35,13 @@ namespace BlackJack_Simulator
                 {
                     switch (x.value)
                     {
-                        case "A":
+                        case "ace":
                             total += 11;
                             break;
 
-                        case "J":
-                        case "Q":
-                        case "K":
+                        case "jack":
+                        case "queen":
+                        case "king":
                             total += 10;
                             break;
                     }

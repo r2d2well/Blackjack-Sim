@@ -1,3 +1,5 @@
+using System.Windows.Forms;
+
 namespace BlackJack_Simulator
 {
     public partial class MainForm : Form
@@ -5,45 +7,37 @@ namespace BlackJack_Simulator
         private Stack<Card> deck;
         private List<Card> player;
         private List<Card> dealer;
+        private List<PictureBox> playerList;
+        private List<PictureBox> dealerList;
         private byte playerTotal;
         private byte dealerTotal;
-        private bool gameOver;
         public MainForm(Stack<Card> deck)
         {
-            gameOver = false;
             player = new List<Card>();
             dealer = new List<Card>();
+            playerList = new List<PictureBox>();
+            dealerList = new List<PictureBox>();
             this.deck = deck;
             InitializeComponent();
-            DrawCard(player);
-            DrawCard(dealer);
-            DrawCard(player);
+            DrawPlayerCard();
+            DrawDealerCard();
+            DrawPlayerCard();
             playerTotal = GetPlayerTotal(player);
+            SetPlayerTotalLabel();
             if (playerTotal == 21)
             {
                 PlayerWins();
             }
-            DrawCard(dealer);
+
+            DrawDealerCard();
             dealerTotal = DealerAgent.GetDealerTotal(dealer);
+            SetDealerTotalLabel();
             if (dealerTotal == 21)
             {
                 DealerWins();
             }
-            SetLabelText(PlayerDeck, player);
-            SetLabelText(DealerDeck, dealer);
         }
 
-        private void SetLabelText(Label label, List<Card> list)
-        {
-            string text = "";
-            foreach (Card x in list)
-            {
-                text += (x.value + " ");
-            }
-            label.Text = text;
-            SetPlayerTotalLabel();
-            SetDealerTotalLabel();
-        }
         private void SetPlayerTotalLabel()
         {
             PlayerTotalLabel.Text = "Total: " + GetPlayerTotal(player);
@@ -67,13 +61,13 @@ namespace BlackJack_Simulator
                 {
                     switch (x.value)
                     {
-                        case "A":
+                        case "ace":
                             total += 11;
                             break;
 
-                        case "J":
-                        case "Q":
-                        case "K":
+                        case "jack":
+                        case "queen":
+                        case "king":
                             total += 10;
                             break;
                     }
@@ -92,13 +86,13 @@ namespace BlackJack_Simulator
                     {
                         switch (x.value)
                         {
-                            case "A":
+                            case "ace":
                                 total++;
                                 break;
 
-                            case "J":
-                            case "Q":
-                            case "K":
+                            case "jack":
+                            case "queen":
+                            case "king":
                                 total += 10;
                                 break;
                         }
@@ -107,89 +101,97 @@ namespace BlackJack_Simulator
             }
             return total;
         }
-        private void DrawCard(List<Card> list)
+        private void DrawPlayerCard()
         {
-            list.Add(deck.Pop());
+            Card card = deck.Pop();
+            player.Add(card);
+            MakeCards(50 + (150 * player.Count), 250, card, true);
+        }
+
+        public void DrawDealerCard()
+        {
+            Card card = deck.Pop();
+            dealer.Add(card);
+            MakeCards(50 + (150 * dealer.Count), 10, card, false);
         }
 
         private void HitButton_Click(object sender, EventArgs e)
         {
-            if (!gameOver)
-            {
-                DrawCard(player);
-                SetLabelText(PlayerDeck, player);
-                playerTotal = GetPlayerTotal(player);
-                if (playerTotal > 21)
-                {
-                    DealerWins();
-                }
-                else if (playerTotal == 21)
-                {
-                    PlayerWins();
-                }
-                else
-                {
-                    DealerTurn();
-                }
-            }
-            else
-            {
-                NewGame();
-            }
+            PlayerHit();
         }
 
         private void StayButton_Click(object sender, EventArgs e)
         {
-            if (!gameOver)
+            PlayerStay();
+        }
+
+        public void PlayerHit()
+        {
+            DrawPlayerCard();
+            SetPlayerTotalLabel();
+            playerTotal = GetPlayerTotal(player);
+            if (playerTotal > 21)
             {
-                if (dealerTotal < 17)
-                {
-                    DealerTurn();
-                    StayButton_Click(sender, e);
-                }
-                else if (!gameOver)
-                {
-                    if (dealerTotal > playerTotal)
-                    {
-                        DealerWins();
-                    }
-                    else if (dealerTotal == playerTotal)
-                    {
-                        Tie();
-                    }
-                    else
-                    {
-                        PlayerWins();
-                    }
-                }
+                DealerWins();
+            }
+            else if (playerTotal == 21)
+            {
+                PlayerWins();
             }
             else
             {
-                NewGame();
+                DealerTurn();
+            }
+        }
+
+        public void PlayerStay()
+        {
+            if (dealerTotal < 17)
+            {
+                DealerTurn();
+                PlayerStay();
+            }
+            else if (dealerTotal > playerTotal)
+            {
+                DealerWins();
+            }
+            else if (dealerTotal == playerTotal)
+            {
+                Tie();
+            }
+            else
+            {
+                PlayerWins();
             }
         }
 
         private void DealerWins()
         {
-            WinnerLabel.Text = "Dealer Wins";
-            gameOver = true;
+            WinnerForm form = new WinnerForm("Dealer Wins!");
+            form.ShowDialog();
+            NewGame();
         }
         private void PlayerWins()
         {
-            WinnerLabel.Text = "Player Wins";
-            gameOver = true;
+            WinnerForm form = new WinnerForm("Player Wins!");
+            form.ShowDialog();
+            NewGame();
         }
 
         private void Tie()
         {
-            WinnerLabel.Text = "Tie";
-            gameOver = true;
+            WinnerForm form = new WinnerForm("Tie!");
+            form.ShowDialog();
+            NewGame();
         }
 
         private void DealerTurn()
         {
-            DealerAgent.DealerMove(deck, dealer);
-            SetLabelText(DealerDeck, dealer);
+            if (DealerAgent.DealerMove(dealer))
+            {
+                DrawDealerCard();
+            }
+            SetDealerTotalLabel();
             dealerTotal = DealerAgent.GetDealerTotal(dealer);
             if (dealerTotal > 21)
             {
@@ -203,27 +205,73 @@ namespace BlackJack_Simulator
 
         private void NewGame()
         {
+            foreach (PictureBox box in playerList)
+            {
+                this.Controls.Remove(box);
+            }
+            foreach (PictureBox box in dealerList)
+            {
+                this.Controls.Remove(box);
+            }
             deck = Program.ShuffleDeck();
             player = new List<Card>();
             dealer = new List<Card>();
-            DrawCard(player);
-            DrawCard(dealer);
-            DrawCard(player);
+            DrawPlayerCard();
+            DrawDealerCard();
+            DrawPlayerCard();
             playerTotal = GetPlayerTotal(player);
             if (playerTotal == 21)
             {
                 PlayerWins();
             }
-            DrawCard(dealer);
+            SetPlayerTotalLabel();
+            DrawDealerCard();
             dealerTotal = DealerAgent.GetDealerTotal(dealer);
+            SetDealerTotalLabel();
             if (dealerTotal == 21)
             {
                 DealerWins();
             }
-            SetLabelText(PlayerDeck, player);
-            SetLabelText(DealerDeck, dealer);
-            WinnerLabel.Text = "";
-            gameOver = false;
+        }
+
+        private void MakeCards(int x, int y, Card card, bool player)
+        {
+            PictureBox pictureBox = new PictureBox();
+            string filePath = "C:\\Users\\r2d2w\\source\\repos\\BlackJack Simulator\\BlackJack Simulator\\bin\\Debug\\net7.0-windows\\Cards\\";
+            filePath += card.value;
+            switch (card.set)
+            {
+                case 0:
+                    filePath += "_of_clubs.png";
+                    break;
+
+                case 1:
+                    filePath += "_of_diamonds.png";
+                    break;
+
+                case 2:
+                    filePath += "_of_hearts.png";
+                    break;
+
+                case 3:
+                    filePath += "_of_spades.png";
+                    break;
+            }
+            Bitmap bitmap = new Bitmap(filePath);
+            pictureBox.Image = (Image)bitmap;
+
+            pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox.Size = new Size(125, 182);
+            pictureBox.Location = new Point(x, y);
+            if (player)
+            {
+                playerList.Add(pictureBox);
+            }
+            else
+            {
+                dealerList.Add(pictureBox);
+            }
+            this.Controls.Add(pictureBox);
         }
     }
 }
