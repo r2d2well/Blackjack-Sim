@@ -1,4 +1,7 @@
 using System.Windows.Forms;
+using System.Threading;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
+using System.Xml.Linq;
 
 namespace BlackJack_Simulator
 {
@@ -9,14 +12,19 @@ namespace BlackJack_Simulator
         private List<Card> dealer;
         private List<PictureBox> playerList;
         private List<PictureBox> dealerList;
+        private Thread AIthread;
         private byte playerTotal;
         private byte dealerTotal;
+        private bool AIenabled;
         public MainForm(Stack<Card> deck)
         {
             player = new List<Card>();
             dealer = new List<Card>();
             playerList = new List<PictureBox>();
             dealerList = new List<PictureBox>();
+            AIenabled = false;
+            AIthread = new Thread(new ThreadStart(this.ThreadTask));
+            AIthread.IsBackground = true;
             this.deck = deck;
             InitializeComponent();
             DrawPlayerCard();
@@ -40,12 +48,30 @@ namespace BlackJack_Simulator
 
         private void SetPlayerTotalLabel()
         {
-            PlayerTotalLabel.Text = "Total: " + GetPlayerTotal(player);
+            if (PlayerTotalLabel.InvokeRequired)
+            {
+                PlayerTotalLabel.Invoke(new MethodInvoker(delegate {
+                    PlayerTotalLabel.Text = "Total: " + GetPlayerTotal(player);
+                }));
+            }
+            else
+            {
+                PlayerTotalLabel.Text = "Total: " + GetPlayerTotal(player);
+            }
         }
 
         private void SetDealerTotalLabel()
         {
-            DealerTotalLabel.Text = "Total: " + DealerAgent.GetDealerTotal(dealer);
+            if (DealerTotalLabel.InvokeRequired)
+            {
+                DealerTotalLabel.Invoke(new MethodInvoker(delegate {
+                    DealerTotalLabel.Text = "Total: " + DealerAgent.GetDealerTotal(dealer);
+                }));
+            }
+            else 
+            {
+                DealerTotalLabel.Text = "Total: " + DealerAgent.GetDealerTotal(dealer);
+            }
         }
 
         private byte GetPlayerTotal(List<Card> list)
@@ -205,39 +231,46 @@ namespace BlackJack_Simulator
 
         private void NewGame()
         {
-            foreach (PictureBox box in playerList)
+            if (this.InvokeRequired)
             {
-                this.Controls.Remove(box);
+                this.Invoke(new MethodInvoker(this.NewGame));
             }
-            foreach (PictureBox box in dealerList)
+            else
             {
-                this.Controls.Remove(box);
-            }
-            deck = Program.ShuffleDeck();
-            player = new List<Card>();
-            dealer = new List<Card>();
-            DrawPlayerCard();
-            DrawDealerCard();
-            DrawPlayerCard();
-            playerTotal = GetPlayerTotal(player);
-            if (playerTotal == 21)
-            {
-                PlayerWins();
-            }
-            SetPlayerTotalLabel();
-            DrawDealerCard();
-            dealerTotal = DealerAgent.GetDealerTotal(dealer);
-            SetDealerTotalLabel();
-            if (dealerTotal == 21)
-            {
-                DealerWins();
+                foreach (PictureBox box in playerList)
+                {
+                    this.Controls.Remove(box);
+                }
+                foreach (PictureBox box in dealerList)
+                {
+                    this.Controls.Remove(box);
+                }
+                deck = Program.ShuffleDeck();
+                player = new List<Card>();
+                dealer = new List<Card>();
+                DrawPlayerCard();
+                DrawDealerCard();
+                DrawPlayerCard();
+                playerTotal = GetPlayerTotal(player);
+                SetPlayerTotalLabel();
+                if (playerTotal == 21)
+                {
+                    PlayerWins();
+                }
+                DrawDealerCard();
+                dealerTotal = DealerAgent.GetDealerTotal(dealer);
+                SetDealerTotalLabel();
+                if (dealerTotal == 21)
+                {
+                    DealerWins();
+                }
             }
         }
 
         private void MakeCards(int x, int y, Card card, bool player)
         {
             PictureBox pictureBox = new PictureBox();
-            string filePath = "C:\\Users\\r2d2w\\source\\repos\\BlackJack Simulator\\BlackJack Simulator\\bin\\Debug\\net7.0-windows\\Cards\\";
+            string filePath = "Cards\\";
             filePath += card.value;
             switch (card.set)
             {
@@ -271,7 +304,61 @@ namespace BlackJack_Simulator
             {
                 dealerList.Add(pictureBox);
             }
-            this.Controls.Add(pictureBox);
+            if (this.InvokeRequired)
+            {
+                Invoke((MethodInvoker)delegate ()
+                {
+                    this.Controls.Add(pictureBox);
+                });
+            }
+            else
+            {
+                this.Controls.Add(pictureBox);
+            }
+        }
+        private void ThreadTask()
+        {
+            while (true)
+            {
+                while (AIenabled)
+                {
+                    if (AIAgent.DetermineMove(playerTotal, dealerTotal))
+                    {
+                        PlayerHit();
+                        Thread.Sleep(2000);
+                    }
+                    else
+                    {
+                        PlayerStay();
+                        Thread.Sleep(2000);
+                    }
+                }
+            }
+        }
+
+        private void AIButton_Click(object sender, EventArgs e)
+        {
+            if (!AIenabled)
+            {
+                HitButton.Visible = false;
+                StayButton.Visible = false;
+                AIButton.Text = "Disable AI";
+
+                if (!AIthread.IsAlive)
+                {
+                    AIthread.Start();
+                }
+
+                AIenabled = true;
+            }
+            else
+            {
+                HitButton.Visible = true;
+                StayButton.Visible = true;
+                AIButton.Text = "Enable AI";
+
+                AIenabled = false;
+            }
         }
     }
 }

@@ -32,6 +32,7 @@
             StayButton = new Button();
             PlayerTotalLabel = new Label();
             DealerTotalLabel = new Label();
+            AIButton = new Button();
             SuspendLayout();
             // 
             // HitButton
@@ -74,11 +75,23 @@
             DealerTotalLabel.TabIndex = 6;
             DealerTotalLabel.Text = "Total =";
             // 
+            // AIButton
+            // 
+            AIButton.Font = new Font("Segoe UI", 12F, FontStyle.Regular, GraphicsUnit.Point);
+            AIButton.Location = new Point(837, 477);
+            AIButton.Name = "AIButton";
+            AIButton.Size = new Size(142, 63);
+            AIButton.TabIndex = 7;
+            AIButton.Text = "Enable AI";
+            AIButton.UseVisualStyleBackColor = true;
+            AIButton.Click += AIButton_Click;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(991, 550);
+            Controls.Add(AIButton);
             Controls.Add(DealerTotalLabel);
             Controls.Add(PlayerTotalLabel);
             Controls.Add(StayButton);
@@ -94,5 +107,6 @@
         private Button StayButton;
         private Label PlayerTotalLabel;
         private Label DealerTotalLabel;
+        private Button AIButton;
     }
 }
