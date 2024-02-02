@@ -90,6 +90,7 @@
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
+            BackColor = Color.Firebrick;
             ClientSize = new Size(991, 550);
             Controls.Add(AIButton);
             Controls.Add(DealerTotalLabel);

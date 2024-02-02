@@ -30,7 +30,7 @@ namespace BlackJack_Simulator
             DrawPlayerCard();
             DrawDealerCard();
             DrawPlayerCard();
-            playerTotal = GetPlayerTotal(player);
+            playerTotal = AIAgent.GetPlayerTotal(player);
             SetPlayerTotalLabel();
             if (playerTotal == 21)
             {
@@ -50,13 +50,14 @@ namespace BlackJack_Simulator
         {
             if (PlayerTotalLabel.InvokeRequired)
             {
-                PlayerTotalLabel.Invoke(new MethodInvoker(delegate {
-                    PlayerTotalLabel.Text = "Total: " + GetPlayerTotal(player);
+                PlayerTotalLabel.Invoke(new MethodInvoker(delegate
+                {
+                    PlayerTotalLabel.Text = "Total: " + AIAgent.GetPlayerTotal(player);
                 }));
             }
             else
             {
-                PlayerTotalLabel.Text = "Total: " + GetPlayerTotal(player);
+                PlayerTotalLabel.Text = "Total: " + AIAgent.GetPlayerTotal(player);
             }
         }
 
@@ -64,69 +65,17 @@ namespace BlackJack_Simulator
         {
             if (DealerTotalLabel.InvokeRequired)
             {
-                DealerTotalLabel.Invoke(new MethodInvoker(delegate {
+                DealerTotalLabel.Invoke(new MethodInvoker(delegate
+                {
                     DealerTotalLabel.Text = "Total: " + DealerAgent.GetDealerTotal(dealer);
                 }));
             }
-            else 
+            else
             {
                 DealerTotalLabel.Text = "Total: " + DealerAgent.GetDealerTotal(dealer);
             }
         }
 
-        private byte GetPlayerTotal(List<Card> list)
-        {
-            byte total = 0;
-            foreach (Card x in list)
-            {
-                try
-                {
-                    total += byte.Parse(x.value);
-                }
-                catch (Exception e)
-                {
-                    switch (x.value)
-                    {
-                        case "ace":
-                            total += 11;
-                            break;
-
-                        case "jack":
-                        case "queen":
-                        case "king":
-                            total += 10;
-                            break;
-                    }
-                }
-            }
-            if (total > 21)
-            {
-                total = 0;
-                foreach (Card x in list)
-                {
-                    try
-                    {
-                        total += byte.Parse(x.value);
-                    }
-                    catch (Exception e)
-                    {
-                        switch (x.value)
-                        {
-                            case "ace":
-                                total++;
-                                break;
-
-                            case "jack":
-                            case "queen":
-                            case "king":
-                                total += 10;
-                                break;
-                        }
-                    }
-                }
-            }
-            return total;
-        }
         private void DrawPlayerCard()
         {
             Card card = deck.Pop();
@@ -155,7 +104,7 @@ namespace BlackJack_Simulator
         {
             DrawPlayerCard();
             SetPlayerTotalLabel();
-            playerTotal = GetPlayerTotal(player);
+            playerTotal = AIAgent.GetPlayerTotal(player);
             if (playerTotal > 21)
             {
                 DealerWins();
@@ -197,6 +146,7 @@ namespace BlackJack_Simulator
             form.ShowDialog();
             NewGame();
         }
+
         private void PlayerWins()
         {
             WinnerForm form = new WinnerForm("Player Wins!");
@@ -251,7 +201,7 @@ namespace BlackJack_Simulator
                 DrawPlayerCard();
                 DrawDealerCard();
                 DrawPlayerCard();
-                playerTotal = GetPlayerTotal(player);
+                playerTotal = AIAgent.GetPlayerTotal(player);
                 SetPlayerTotalLabel();
                 if (playerTotal == 21)
                 {
@@ -316,6 +266,7 @@ namespace BlackJack_Simulator
                 this.Controls.Add(pictureBox);
             }
         }
+
         private void ThreadTask()
         {
             while (true)
