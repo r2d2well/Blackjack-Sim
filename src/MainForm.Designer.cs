@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             HitButton = new Button();
             StayButton = new Button();
             PlayerTotalLabel = new Label();
@@ -97,6 +98,7 @@
             Controls.Add(PlayerTotalLabel);
             Controls.Add(StayButton);
             Controls.Add(HitButton);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "MainForm";
             Text = "Table";
             ResumeLayout(false);

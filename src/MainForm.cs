@@ -16,6 +16,7 @@ namespace BlackJack_Simulator
         private byte playerTotal;
         private byte dealerTotal;
         private bool AIenabled;
+        //Creates all the varables that we will be needing later on
         public MainForm(Stack<Card> deck)
         {
             player = new List<Card>();
@@ -27,8 +28,10 @@ namespace BlackJack_Simulator
             AIthread.IsBackground = true;
             this.deck = deck;
             InitializeComponent();
+            //Initializes all the components
             DrawPlayerCard();
             DrawDealerCard();
+            //Draws a player card then draws a dealer card
             DrawPlayerCard();
             playerTotal = AIAgent.GetPlayerTotal(player);
             SetPlayerTotalLabel();
@@ -36,6 +39,7 @@ namespace BlackJack_Simulator
             {
                 PlayerWins();
             }
+            //Draws the player's 2nd card then checks if they win
 
             DrawDealerCard();
             dealerTotal = DealerAgent.GetDealerTotal(dealer);
@@ -44,6 +48,7 @@ namespace BlackJack_Simulator
             {
                 DealerWins();
             }
+            //Does the same thing but for the dealer
         }
 
         private void SetPlayerTotalLabel()
@@ -54,6 +59,7 @@ namespace BlackJack_Simulator
                 {
                     PlayerTotalLabel.Text = "Total: " + AIAgent.GetPlayerTotal(player);
                 }));
+                //Invokes if it is nessacary other's wise just change the text directly
             }
             else
             {
@@ -69,6 +75,7 @@ namespace BlackJack_Simulator
                 {
                     DealerTotalLabel.Text = "Total: " + DealerAgent.GetDealerTotal(dealer);
                 }));
+                //Operates the same as the SetPlayerTotalLabel
             }
             else
             {
@@ -81,6 +88,7 @@ namespace BlackJack_Simulator
             Card card = deck.Pop();
             player.Add(card);
             MakeCards(50 + (150 * player.Count), 250, card, true);
+            //Gets the top card from the deck stack then add it to the player's deck and call MakeCard method
         }
 
         public void DrawDealerCard()
@@ -88,6 +96,7 @@ namespace BlackJack_Simulator
             Card card = deck.Pop();
             dealer.Add(card);
             MakeCards(50 + (150 * dealer.Count), 10, card, false);
+            //Same as DrawPlayerCard but for dealer
         }
 
         private void HitButton_Click(object sender, EventArgs e)
@@ -105,17 +114,21 @@ namespace BlackJack_Simulator
             DrawPlayerCard();
             SetPlayerTotalLabel();
             playerTotal = AIAgent.GetPlayerTotal(player);
+            //Draws card and update the player's total
             if (playerTotal > 21)
             {
                 DealerWins();
+                //If player busts dealer wins
             }
             else if (playerTotal == 21)
             {
                 PlayerWins();
+                //If player hits blackjack they win
             }
             else
             {
                 DealerTurn();
+                //Otherwise it is the dealer's turn
             }
         }
 
@@ -125,18 +138,22 @@ namespace BlackJack_Simulator
             {
                 DealerTurn();
                 PlayerStay();
+                //If dealer is under 17 then he hits and recursivly calls the method
             }
             else if (dealerTotal > playerTotal)
             {
                 DealerWins();
+                //If dealer is higher then player then the dealer wins
             }
             else if (dealerTotal == playerTotal)
             {
                 Tie();
+                //If they have the same value then it is a tie
             }
             else
             {
                 PlayerWins();
+                //If player has higher value they win
             }
         }
 
@@ -145,6 +162,7 @@ namespace BlackJack_Simulator
             WinnerForm form = new WinnerForm("Dealer Wins!");
             form.ShowDialog();
             NewGame();
+            //Creates a new WinnerForm with apporaite text then starts a new game
         }
 
         private void PlayerWins()
@@ -152,6 +170,7 @@ namespace BlackJack_Simulator
             WinnerForm form = new WinnerForm("Player Wins!");
             form.ShowDialog();
             NewGame();
+            //Creates a new WinnerForm with apporaite text then starts a new game
         }
 
         private void Tie()
@@ -159,6 +178,7 @@ namespace BlackJack_Simulator
             WinnerForm form = new WinnerForm("Tie!");
             form.ShowDialog();
             NewGame();
+            //Creates a new WinnerForm with apporaite text then starts a new game
         }
 
         private void DealerTurn()
@@ -169,6 +189,7 @@ namespace BlackJack_Simulator
             }
             SetDealerTotalLabel();
             dealerTotal = DealerAgent.GetDealerTotal(dealer);
+            //Hits or stays depending on what the DealerAgent says
             if (dealerTotal > 21)
             {
                 PlayerWins();
@@ -177,6 +198,7 @@ namespace BlackJack_Simulator
             {
                 DealerWins();
             }
+            //Checks if dealer bust or got a blackjack
         }
 
         private void NewGame()
@@ -184,6 +206,7 @@ namespace BlackJack_Simulator
             if (this.InvokeRequired)
             {
                 this.Invoke(new MethodInvoker(this.NewGame));
+                //Calls an Invoke if required
             }
             else
             {
@@ -195,9 +218,11 @@ namespace BlackJack_Simulator
                 {
                     this.Controls.Remove(box);
                 }
+                //Removes all the picture box in the player and dealer lists
                 deck = Program.ShuffleDeck();
                 player = new List<Card>();
                 dealer = new List<Card>();
+                //Shuffles the deck and resets the player and dealers hand
                 DrawPlayerCard();
                 DrawDealerCard();
                 DrawPlayerCard();
@@ -214,6 +239,7 @@ namespace BlackJack_Simulator
                 {
                     DealerWins();
                 }
+                //Draws cards and check wins like in the constructor
             }
         }
 
@@ -242,10 +268,13 @@ namespace BlackJack_Simulator
             }
             Bitmap bitmap = new Bitmap(filePath);
             pictureBox.Image = (Image)bitmap;
+            //Creates a new picture box and set the image in it to a png found in a local directory
+            //coordinating with the card being draw
 
             pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox.Size = new Size(125, 182);
             pictureBox.Location = new Point(x, y);
+            //Sets the picturebox's sizemode, size, and location
             if (player)
             {
                 playerList.Add(pictureBox);
@@ -254,12 +283,14 @@ namespace BlackJack_Simulator
             {
                 dealerList.Add(pictureBox);
             }
+            ///adds the picturebox to either playerList or dealerList depenting on who drew the card
             if (this.InvokeRequired)
             {
                 Invoke((MethodInvoker)delegate ()
                 {
                     this.Controls.Add(pictureBox);
                 });
+                //Adds the picturebox to the controls and Invokes if it is required
             }
             else
             {
@@ -273,15 +304,18 @@ namespace BlackJack_Simulator
             {
                 while (AIenabled)
                 {
+                    //Loops whenever the AIenabled boolean is true
                     if (AIAgent.DetermineMove(playerTotal, dealerTotal))
                     {
                         PlayerHit();
                         Thread.Sleep(2000);
+                        //If the AIAgent decided to hit then calls the PlayerHit method then sleep for 2 seconds
                     }
                     else
                     {
                         PlayerStay();
                         Thread.Sleep(2000);
+                        //If the AIAgent decided to stay then calls the PlayerStay method then sleep for 2 seconds
                     }
                 }
             }
@@ -301,6 +335,7 @@ namespace BlackJack_Simulator
                 }
 
                 AIenabled = true;
+                //Enables the AIthread and Starts it if nessacary
             }
             else
             {
@@ -309,6 +344,7 @@ namespace BlackJack_Simulator
                 AIButton.Text = "Enable AI";
 
                 AIenabled = false;
+                //temporarly disables the AIThread
             }
         }
     }

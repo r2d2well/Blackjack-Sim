@@ -15,12 +15,15 @@ namespace BlackJack_Simulator
         public WinnerForm(string x)
         {
             InitializeComponent();
+            this.Text = x;
             label.Text = x;
+            //Sets the form's text and the label text to be equal to the string it is given
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
             this.Close();
+            //When button 1 is clicked the form will close itself
         }
     }
 }

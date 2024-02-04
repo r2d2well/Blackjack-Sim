@@ -12,4 +12,5 @@ public class Card
         this.set = set;
         this.value = value;
     }
+    //Basic card deck that stores a card's value and what set it belongs to
 }

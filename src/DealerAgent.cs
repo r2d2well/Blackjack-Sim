@@ -15,10 +15,12 @@ namespace BlackJack_Simulator
             if (total < 17)
             {
                 return true;
+                //If the dealerTotal is under 17 then hit
             }
             else
             {
                 return false;
+                //If the dealerTotal is equal to or greater than 17 then stay
             }
         }
 
@@ -38,6 +40,7 @@ namespace BlackJack_Simulator
                         case "ace":
                             total += 11;
                             break;
+                            //Aces must count as 11
 
                         case "jack":
                         case "queen":
@@ -45,6 +48,7 @@ namespace BlackJack_Simulator
                             total += 10;
                             break;
                     }
+                    //If value is not a number then adds value manually though switch case
                 }
             }
             return total;

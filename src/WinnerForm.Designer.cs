@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(WinnerForm));
             label = new Label();
             button1 = new Button();
             SuspendLayout();
@@ -60,6 +61,7 @@
             ClientSize = new Size(503, 182);
             Controls.Add(button1);
             Controls.Add(label);
+            Icon = (Icon)resources.GetObject("$this.Icon");
             Name = "WinnerForm";
             Text = "WinnerForm";
             ResumeLayout(false);
